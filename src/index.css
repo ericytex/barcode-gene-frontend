@@ -1,0 +1,239 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 225 29% 13%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 225 29% 13%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 225 29% 13%;
+
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 276 100% 99%;
+    --secondary-foreground: 276 87% 18%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 192 95% 68%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 229 24% 87%;
+    --input: 229 24% 87%;
+    --ring: 239 84% 67%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%), hsl(276 100% 75%));
+    --gradient-secondary: linear-gradient(135deg, hsl(276 100% 75%), hsl(192 95% 68%));
+    --gradient-accent: linear-gradient(135deg, hsl(192 95% 68%), hsl(142 76% 56%));
+    --gradient-hero: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(276 100% 75%) 50%, hsl(192 95% 68%) 100%);
+    
+    /* Shadows */
+    --shadow-elegant: 0 4px 20px -2px hsl(239 84% 67% / 0.15);
+    --shadow-soft: 0 2px 10px -1px hsl(0 0% 0% / 0.1);
+    --shadow-glow: 0 0 40px hsl(239 84% 67% / 0.3);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    --transition-spring: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Enhanced Shadows */
+    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+    --shadow-hover: 0 10px 15px -3px hsl(239 84% 67% / 0.1), 0 4px 6px -4px hsl(239 84% 67% / 0.1);
+    --shadow-focus: 0 0 0 3px hsl(239 84% 67% / 0.3);
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 239 84% 67%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 276 100% 75%;
+    --sidebar-primary-foreground: 225 29% 13%;
+    --sidebar-accent: 192 95% 68%;
+    --sidebar-accent-foreground: 225 29% 13%;
+    --sidebar-border: 229 24% 87%;
+    --sidebar-ring: 239 84% 67%;
+  }
+
+  .dark {
+    --background: 225 29% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 225 29% 9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 225 29% 9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 225 29% 12%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 225 29% 12%;
+    --muted-foreground: 215 16% 65%;
+
+    --accent: 192 95% 68%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 225 29% 15%;
+    --input: 225 29% 15%;
+    --ring: 239 84% 67%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%), hsl(276 100% 75%));
+    --gradient-secondary: linear-gradient(135deg, hsl(276 100% 75%), hsl(192 95% 68%));
+    --gradient-accent: linear-gradient(135deg, hsl(192 95% 68%), hsl(142 76% 56%));
+    --gradient-hero: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(276 100% 75%) 50%, hsl(192 95% 68%) 100%);
+    
+    --shadow-elegant: 0 4px 20px -2px hsl(0 0% 0% / 0.3);
+    --shadow-soft: 0 2px 10px -1px hsl(0 0% 0% / 0.2);
+    --shadow-glow: 0 0 40px hsl(239 84% 67% / 0.4);
+    --sidebar-background: 225 29% 12%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 192 95% 68%;
+    --sidebar-primary-foreground: 225 29% 13%;
+    --sidebar-accent: 276 100% 75%;
+    --sidebar-accent-foreground: 225 29% 13%;
+    --sidebar-border: 225 29% 15%;
+    --sidebar-ring: 239 84% 67%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/50;
+  }
+}
+
+@layer components {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .gradient-accent {
+    background: var(--gradient-accent);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .shadow-elegant {
+    box-shadow: var(--shadow-elegant);
+  }
+  
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-hover {
+    box-shadow: var(--shadow-hover);
+  }
+  
+  .shadow-focus {
+    box-shadow: var(--shadow-focus);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+  
+  .transition-spring {
+    transition: var(--transition-spring);
+  }
+
+  /* Interactive Elements */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-hover hover:-translate-y-1 hover:scale-[1.02];
+  }
+  
+  .button-glow {
+    @apply relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700;
+  }
+  
+  .glass-effect {
+    @apply bg-card/50 backdrop-blur-md border border-border/50;
+  }
+  
+  .floating {
+    animation: float 3s ease-in-out infinite;
+  }
+}
+
+/* Additional animations */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-4px); 
+  }
+}
