@@ -2,7 +2,7 @@
  * API service for connecting to the Barcode Generator API
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://barcode-api.trycloudflare.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://doctors-assuming-quarter-accessing.trycloudflare.com/api';
 const API_KEY = import.meta.env.VITE_API_KEY || 'frontend-api-key-12345';
 
 export interface BarcodeItem {
