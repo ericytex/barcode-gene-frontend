@@ -115,8 +115,16 @@ class ApiService {
   private apiKey: string;
 
   constructor(baseUrl: string = API_BASE_URL, apiKey: string = API_KEY) {
-    this.baseUrl = baseUrl;
+    console.log('🏗️ ApiService Constructor:', {
+      passedBaseUrl: baseUrl,
+      API_BASE_URL: API_BASE_URL,
+      passedApiKey: apiKey,
+      API_KEY: API_KEY
+    });
+    // Force the correct baseUrl
+    this.baseUrl = 'http://194.163.134.129:8000';
     this.apiKey = apiKey;
+    console.log('✅ ApiService initialized with baseUrl:', this.baseUrl);
   }
 
   private async request<T>(
