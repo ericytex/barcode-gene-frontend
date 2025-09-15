@@ -34,7 +34,7 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-2">
                   <input 
                     type="text" 
-                    value="http://localhost:8000" 
+                    value="http://194.163.134.129:8000" 
                     className="flex-1 px-3 py-2 border rounded-md bg-background"
                     readOnly
                   />
