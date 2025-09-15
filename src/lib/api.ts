@@ -2,16 +2,49 @@
  * API service for connecting to the Barcode Generator API
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://194.163.134.129:8000';
-const API_KEY = import.meta.env.VITE_API_KEY || 'frontend-api-key-12345';
+// Function to get API configuration with proper fallbacks
+function getApiConfig() {
+  const envBaseUrl = import.meta.env.VITE_API_BASE_URL;
+  const envApiKey = import.meta.env.VITE_API_KEY;
+  
+  // Debug all environment variables
+  console.log('🔧 Environment Variables:', {
+    VITE_API_BASE_URL: envBaseUrl,
+    VITE_API_KEY: envApiKey,
+    DEV: import.meta.env.DEV,
+    MODE: import.meta.env.MODE,
+    PROD: import.meta.env.PROD,
+    allEnv: import.meta.env
+  });
+  
+  // Determine the correct base URL
+  let baseUrl: string;
+  if (envBaseUrl) {
+    baseUrl = envBaseUrl;
+    console.log('✅ Using environment VITE_API_BASE_URL:', baseUrl);
+  } else {
+    // Fallback based on environment
+    if (import.meta.env.PROD) {
+      baseUrl = 'http://194.163.134.129:8000';
+      console.log('🏭 Production fallback:', baseUrl);
+    } else {
+      baseUrl = 'http://localhost:8000';
+      console.log('💻 Development fallback:', baseUrl);
+    }
+  }
+  
+  const apiKey = envApiKey || 'frontend-api-key-12345';
+  
+  console.log('🎯 Final API Configuration:', {
+    baseUrl,
+    apiKey,
+    source: envBaseUrl ? 'environment' : 'fallback'
+  });
+  
+  return { baseUrl, apiKey };
+}
 
-// Debug logging
-console.log('🔧 API Configuration:', {
-  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-  DEV: import.meta.env.DEV,
-  resolved_API_BASE_URL: API_BASE_URL,
-  API_KEY: API_KEY
-});
+const { baseUrl: API_BASE_URL, apiKey: API_KEY } = getApiConfig();
 
 export interface BarcodeItem {
   imei: string;
@@ -121,8 +154,7 @@ class ApiService {
       passedApiKey: apiKey,
       API_KEY: API_KEY
     });
-    // Force the correct baseUrl
-    this.baseUrl = 'http://194.163.134.129:8000';
+    this.baseUrl = baseUrl;
     this.apiKey = apiKey;
     console.log('✅ ApiService initialized with baseUrl:', this.baseUrl);
   }
