@@ -5,6 +5,14 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8000' : 'http://194.163.134.129:8000');
 const API_KEY = import.meta.env.VITE_API_KEY || 'frontend-api-key-12345';
 
+// Debug logging
+console.log('🔧 API Configuration:', {
+  VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  DEV: import.meta.env.DEV,
+  resolved_API_BASE_URL: API_BASE_URL,
+  API_KEY: API_KEY
+});
+
 export interface BarcodeItem {
   imei: string;
   box_id?: string;
@@ -116,6 +124,13 @@ class ApiService {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    
+    // Debug URL construction
+    console.log('🔗 URL Construction:', {
+      baseUrl: this.baseUrl,
+      endpoint: endpoint,
+      finalUrl: url
+    });
     
     const defaultOptions: RequestInit = {
       headers: {
