@@ -31,10 +31,10 @@ function getApiConfig() {
                        window.location.hostname.includes('barcode-gene-frontend');
     
     if (isProduction) {
-      baseUrl = 'http://194.163.134.129:8000';
+      baseUrl = 'http://194.163.134.129:8034';
       console.log('🏭 Production fallback (detected via hostname):', baseUrl);
     } else {
-      baseUrl = 'http://localhost:8000';
+      baseUrl = 'http://localhost:8034';
       console.log('💻 Development fallback:', baseUrl);
     }
   }

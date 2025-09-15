@@ -32,12 +32,12 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <label className="text-sm font-medium">API Base URL</label>
                 <div className="flex items-center gap-2">
-                  <input 
-                    type="text" 
-                    value="http://194.163.134.129:8000" 
-                    className="flex-1 px-3 py-2 border rounded-md bg-background"
-                    readOnly
-                  />
+                <input 
+                  type="text" 
+                  value="http://194.163.134.129:8034" 
+                  className="flex-1 px-3 py-2 border rounded-md bg-background"
+                  readOnly
+                />
                   <Badge variant="secondary">Connected</Badge>
                 </div>
               </div>
