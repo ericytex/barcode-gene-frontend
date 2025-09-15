@@ -2,7 +2,7 @@
  * API service for connecting to the Barcode Generator API
  */
 
-// Function to get API configuration with proper fallbacks
+// Function to get API configuration with robust fallbacks
 function getApiConfig() {
   const envBaseUrl = import.meta.env.VITE_API_BASE_URL;
   const envApiKey = import.meta.env.VITE_API_KEY;
@@ -17,16 +17,22 @@ function getApiConfig() {
     allEnv: import.meta.env
   });
   
-  // Determine the correct base URL
+  // Determine the correct base URL with multiple fallback strategies
   let baseUrl: string;
-  if (envBaseUrl) {
+  
+  // Strategy 1: Use environment variable if it exists and is valid
+  if (envBaseUrl && envBaseUrl.startsWith('http')) {
     baseUrl = envBaseUrl;
     console.log('✅ Using environment VITE_API_BASE_URL:', baseUrl);
   } else {
-    // Fallback based on environment
-    if (import.meta.env.PROD) {
+    // Strategy 2: Detect environment and use appropriate fallback
+    const isProduction = import.meta.env.PROD || 
+                       window.location.hostname.includes('vercel.app') ||
+                       window.location.hostname.includes('barcode-gene-frontend');
+    
+    if (isProduction) {
       baseUrl = 'http://194.163.134.129:8000';
-      console.log('🏭 Production fallback:', baseUrl);
+      console.log('🏭 Production fallback (detected via hostname):', baseUrl);
     } else {
       baseUrl = 'http://localhost:8000';
       console.log('💻 Development fallback:', baseUrl);
@@ -38,7 +44,8 @@ function getApiConfig() {
   console.log('🎯 Final API Configuration:', {
     baseUrl,
     apiKey,
-    source: envBaseUrl ? 'environment' : 'fallback'
+    source: envBaseUrl && envBaseUrl.startsWith('http') ? 'environment' : 'fallback',
+    hostname: window.location.hostname
   });
   
   return { baseUrl, apiKey };
