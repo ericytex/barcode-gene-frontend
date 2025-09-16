@@ -87,7 +87,7 @@ export function ApiConnectionTest() {
               <strong>Error:</strong> {error}
             </div>
         <div className="text-xs text-red-600 mt-1">
-          Make sure the API server is running on https://194.163.134.129:8034
+          Make sure the API server is running on https://194.163.134.129:8034/
         </div>
           </div>
         )}

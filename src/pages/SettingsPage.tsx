@@ -34,7 +34,7 @@ export default function SettingsPage() {
                 <div className="flex items-center gap-2">
                 <input 
                   type="text" 
-                  value="https://194.163.134.129:8034" 
+                  value="https://194.163.134.129:8034/" 
                   className="flex-1 px-3 py-2 border rounded-md bg-background"
                   readOnly
                 />
