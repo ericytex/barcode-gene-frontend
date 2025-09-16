@@ -170,12 +170,16 @@ class ApiService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
+    // Ensure no double slashes in URL construction
+    const baseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = `${baseUrl}${cleanEndpoint}`;
     
     // Debug URL construction
     console.log('🔗 URL Construction:', {
-      baseUrl: this.baseUrl,
+      originalBaseUrl: this.baseUrl,
       endpoint: endpoint,
+      cleanedBaseUrl: baseUrl,
       finalUrl: url
     });
     
