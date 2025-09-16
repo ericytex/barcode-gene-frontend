@@ -2,13 +2,15 @@
  * API service for connecting to the Barcode Generator API
  */
 
+import { safeLog, safeError, debugLog } from '@/utils/logger';
+
 // Function to get API configuration with robust fallbacks
 function getApiConfig() {
   const envBaseUrl = import.meta.env.VITE_API_BASE_URL;
   const envApiKey = import.meta.env.VITE_API_KEY;
   
   // Debug all environment variables
-  console.log('🔧 Environment Variables:', {
+  debugLog('Environment Variables', {
     VITE_API_BASE_URL: envBaseUrl,
     VITE_API_KEY: envApiKey,
     DEV: import.meta.env.DEV,
@@ -23,7 +25,7 @@ function getApiConfig() {
   // Strategy 1: Use environment variable if it exists and is valid
   if (envBaseUrl && envBaseUrl.startsWith('http')) {
     baseUrl = envBaseUrl;
-    console.log('✅ Using environment VITE_API_BASE_URL:', baseUrl);
+    safeLog('Using environment VITE_API_BASE_URL', baseUrl);
   } else {
     // Strategy 2: Detect environment and use appropriate fallback
     const isProduction = import.meta.env.PROD || 
@@ -32,16 +34,16 @@ function getApiConfig() {
     
     if (isProduction) {
       baseUrl = 'https://194.163.134.129:8034/';
-      console.log('🏭 Production fallback (detected via hostname):', baseUrl);
+      safeLog('Production fallback (detected via hostname)', baseUrl);
     } else {
       baseUrl = 'https://194.163.134.129:8034/';
-      console.log('💻 Development fallback:', baseUrl);
+      safeLog('Development fallback', baseUrl);
     }
   }
   
   const apiKey = envApiKey || 'frontend-api-key-12345';
   
-  console.log('🎯 Final API Configuration:', {
+  debugLog('Final API Configuration', {
     baseUrl,
     apiKey,
     source: envBaseUrl && envBaseUrl.startsWith('http') ? 'environment' : 'fallback',
@@ -155,7 +157,7 @@ class ApiService {
   private apiKey: string;
 
   constructor(baseUrl: string = API_BASE_URL, apiKey: string = API_KEY) {
-    console.log('🏗️ ApiService Constructor:', {
+    debugLog('ApiService Constructor', {
       passedBaseUrl: baseUrl,
       API_BASE_URL: API_BASE_URL,
       passedApiKey: apiKey,
@@ -163,7 +165,7 @@ class ApiService {
     });
     this.baseUrl = baseUrl;
     this.apiKey = apiKey;
-    console.log('✅ ApiService initialized with baseUrl:', this.baseUrl);
+    safeLog('ApiService initialized with baseUrl', this.baseUrl);
   }
 
   private async request<T>(
@@ -176,7 +178,7 @@ class ApiService {
     const url = `${baseUrl}${cleanEndpoint}`;
     
     // Debug URL construction
-    console.log('🔗 URL Construction:', {
+    debugLog('URL Construction', {
       originalBaseUrl: this.baseUrl,
       endpoint: endpoint,
       cleanedBaseUrl: baseUrl,
@@ -193,7 +195,7 @@ class ApiService {
 
     // Log requests in development
     if (import.meta.env.VITE_LOG_REQUESTS === 'true') {
-      console.log(`API Request: ${options.method || 'GET'} ${url}`);
+      safeLog(`API Request: ${options.method || 'GET'}`, url);
     }
 
     const response = await fetch(url, { ...defaultOptions, ...options });
@@ -217,11 +219,11 @@ class ApiService {
 
     try {
       const jsonResponse = await response.json();
-      console.log('🔍 Parsed JSON response:', jsonResponse);
+      debugLog('Parsed JSON response', jsonResponse);
       return jsonResponse;
     } catch (error) {
-      console.error('❌ Failed to parse JSON response:', error);
-      console.error('❌ Response text:', await response.text());
+      safeError('Failed to parse JSON response', error);
+      safeError('Response text', await response.text());
       throw new Error('Failed to parse server response');
     }
   }
@@ -253,8 +255,8 @@ class ApiService {
     formData.append('pdf_grid_rows', pdfGridRows.toString());
     formData.append('auto_generate_second_imei', autoGenerateSecondImei.toString());
 
-    console.log('📤 Uploading Excel file:', file.name);
-    console.log('📤 FormData contents:', {
+    safeLog('Uploading Excel file', file.name);
+    debugLog('FormData contents', {
       createPdf,
       pdfGridCols,
       pdfGridRows,
@@ -270,9 +272,9 @@ class ApiService {
       body: formData,
     });
 
-    console.log('📥 Upload response:', response);
-    console.log('📥 Response type:', typeof response);
-    console.log('📥 Response keys:', response ? Object.keys(response) : 'undefined');
+    debugLog('Upload response', response);
+    debugLog('Response type', typeof response);
+    debugLog('Response keys', response ? Object.keys(response) : 'undefined');
     return response;
   }
 
@@ -395,7 +397,7 @@ class ApiService {
       const blob = await this.downloadBarcodeFile(filename);
       return URL.createObjectURL(blob);
     } catch (error) {
-      console.error('Failed to create authenticated image URL:', error);
+      safeError('Failed to create authenticated image URL', error);
       throw error;
     }
   }
@@ -409,7 +411,7 @@ class ApiService {
       const blob = await this.downloadPdfFile(filename);
       return URL.createObjectURL(blob);
     } catch (error) {
-      console.error('Failed to create authenticated PDF URL:', error);
+      safeError('Failed to create authenticated PDF URL', error);
       throw error;
     }
   }
@@ -461,7 +463,7 @@ class ApiService {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Download failed:', error);
+      safeError('Download failed', error);
       throw error;
     }
   }
