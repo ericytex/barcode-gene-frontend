@@ -322,7 +322,11 @@ class ApiService {
    * Download a PNG file
    */
   async downloadBarcodeFile(filename: string): Promise<Blob> {
-    const response = await fetch(`${this.baseUrl}/barcodes/download/${filename}`, {
+    // Use the same URL cleaning logic as the request method
+    const baseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+    const url = `${baseUrl}/barcodes/download/${filename}`;
+    
+    const response = await fetch(url, {
       headers: {
         'X-API-Key': this.apiKey,
       },
@@ -342,7 +346,11 @@ class ApiService {
    * Download a PDF file
    */
   async downloadPdfFile(filename: string): Promise<Blob> {
-    const response = await fetch(`${this.baseUrl}/barcodes/download-pdf/${filename}`, {
+    // Use the same URL cleaning logic as the request method
+    const baseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+    const url = `${baseUrl}/barcodes/download-pdf/${filename}`;
+    
+    const response = await fetch(url, {
       headers: {
         'X-API-Key': this.apiKey,
       },
@@ -364,7 +372,8 @@ class ApiService {
    * Use downloadPdfFile() method instead for authenticated downloads
    */
   getPdfUrl(filename: string): string {
-    return `${this.baseUrl}/barcodes/download-pdf/${filename}`;
+    const baseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+    return `${baseUrl}/barcodes/download-pdf/${filename}`;
   }
 
   /**
@@ -373,7 +382,8 @@ class ApiService {
    * Use downloadBarcodeFile() method instead for authenticated downloads
    */
   getPngUrl(filename: string): string {
-    return `${this.baseUrl}/barcodes/download/${filename}`;
+    const baseUrl = this.baseUrl.endsWith('/') ? this.baseUrl.slice(0, -1) : this.baseUrl;
+    return `${baseUrl}/barcodes/download/${filename}`;
   }
 
   /**
