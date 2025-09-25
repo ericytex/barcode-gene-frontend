@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 import os
 import asyncio
-from datetime import datetime
+from utils.safe_logger import safe_logger
 
 # Import our models and services
 from models.barcode_models import (
@@ -36,12 +36,24 @@ app = FastAPI(
 )
 
 # Configure CORS securely
-cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:8034,http://localhost:8080").split(",")
+
+# Add additional Vercel domains dynamically
+additional_origins = [
+    "https://barcode-gene-frontend.vercel.app",
+    "https://barcode-gene-frontend-hmnff9rd3-ericytexs-projects.vercel.app"
+]
+
+# Combine and deduplicate origins
+all_origins = list(set(cors_origins + additional_origins))
+
+safe_logger.info("CORS Origins configured", all_origins)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=cors_origins,
+    allow_origins=all_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -57,15 +69,23 @@ db_manager = DatabaseManager()
 @app.on_event("startup")
 async def startup_event():
     """Initialize the application"""
-    print("🚀 Starting Barcode Generator API...")
+    safe_logger.info("Starting Barcode Generator API")
     # Clean up old files on startup
     cleanup_old_files("uploads", max_age_hours=24)
     cleanup_old_files("downloads/barcodes", max_age_hours=24)
     cleanup_old_files("downloads/pdfs", max_age_hours=24)
-    print("✅ API startup complete!")
+    safe_logger.info("API startup complete")
+
+# Simple health check endpoint (no auth required for Docker health checks)
+@app.get("/healthz")
+async def health_check_simple():
+    """Simple health check endpoint for Docker health checks"""
+    from datetime import datetime
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 # Health check endpoint
-@app.get("/api/health", response_model=HealthResponse)
+@app.get("/health", response_model=HealthResponse)
+@app.get("/api/health", response_model=HealthResponse)  # Backward compatibility
 async def health_check(
     api_key: str = Depends(verify_api_key),
     client_ip: str = Depends(check_rate_limit)
@@ -78,7 +98,8 @@ async def health_check(
     )
 
 # Generate barcodes from JSON data
-@app.post("/api/barcodes/generate", response_model=BarcodeGenerationResponse)
+@app.post("/barcodes/generate", response_model=BarcodeGenerationResponse)
+@app.post("/api/barcodes/generate", response_model=BarcodeGenerationResponse)  # Backward compatibility
 async def generate_barcodes(
     request: BarcodeGenerationRequest,
     api_key: str = Depends(verify_api_key),
@@ -135,7 +156,8 @@ async def generate_barcodes(
         )
 
 # Upload Excel file and generate barcodes
-@app.post("/api/barcodes/upload-excel", response_model=BarcodeGenerationResponse)
+@app.post("/barcodes/upload-excel", response_model=BarcodeGenerationResponse)
+@app.post("/api/barcodes/upload-excel", response_model=BarcodeGenerationResponse)  # Backward compatibility
 async def upload_excel_and_generate(
     file: UploadFile = File(...),
     create_pdf: bool = True,
@@ -252,7 +274,8 @@ async def upload_excel_and_generate(
         )
 
 # List all generated files
-@app.get("/api/barcodes/list", response_model=FileListResponse)
+@app.get("/barcodes/list", response_model=FileListResponse)
+@app.get("/api/barcodes/list", response_model=FileListResponse)  # Backward compatibility
 async def list_generated_files(
     api_key: str = Depends(verify_api_key),
     client_ip: str = Depends(check_rate_limit)
@@ -281,7 +304,7 @@ async def list_generated_files(
         )
 
 # Download individual PNG file
-@app.get("/api/barcodes/download/{filename}")
+@app.get("/barcodes/download/{filename}")
 async def download_barcode_file(
     filename: str,
     api_key: str = Depends(verify_api_key),
@@ -314,7 +337,7 @@ async def download_barcode_file(
         )
 
 # Download PDF file
-@app.get("/api/barcodes/download-pdf/{filename}")
+@app.get("/barcodes/download-pdf/{filename}")
 async def download_pdf_file(filename: str):
     """Download a generated PDF file"""
     try:
@@ -343,7 +366,7 @@ async def download_pdf_file(filename: str):
         )
 
 # Create PDF from existing barcodes
-@app.post("/api/barcodes/create-pdf", response_model=BarcodeGenerationResponse)
+@app.post("/barcodes/create-pdf", response_model=BarcodeGenerationResponse)
 async def create_pdf_from_existing(
     grid_cols: int = 5,
     grid_rows: int = 12,
@@ -400,7 +423,7 @@ async def root():
 
 # Database and Archive Management Endpoints
 
-@app.get("/api/archive/sessions", response_model=dict)
+@app.get("/archive/sessions", response_model=dict)
 async def get_archive_sessions(
     limit: int = 10,
     api_key: str = Depends(verify_api_key),
@@ -416,7 +439,7 @@ async def get_archive_sessions(
             detail=f"Failed to get archive sessions: {str(e)}"
         )
 
-@app.get("/api/archive/session/{session_id}/files", response_model=dict)
+@app.get("/archive/session/{session_id}/files", response_model=dict)
 async def get_session_files(
     session_id: str,
     api_key: str = Depends(verify_api_key),
@@ -432,7 +455,7 @@ async def get_session_files(
             detail=f"Failed to get session files: {str(e)}"
         )
 
-@app.get("/api/archive/statistics", response_model=dict)
+@app.get("/archive/statistics", response_model=dict)
 async def get_archive_statistics(
     api_key: str = Depends(verify_api_key),
     client_ip: str = Depends(check_rate_limit)
@@ -447,7 +470,7 @@ async def get_archive_statistics(
             detail=f"Failed to get archive statistics: {str(e)}"
         )
 
-@app.get("/api/database/files", response_model=dict)
+@app.get("/database/files", response_model=dict)
 async def get_all_files(
     api_key: str = Depends(verify_api_key),
     client_ip: str = Depends(check_rate_limit)
@@ -462,7 +485,7 @@ async def get_all_files(
             detail=f"Failed to get files: {str(e)}"
         )
 
-@app.get("/api/database/file/{filename}", response_model=dict)
+@app.get("/database/file/{filename}", response_model=dict)
 async def get_file_by_name(
     filename: str,
     api_key: str = Depends(verify_api_key),
@@ -487,4 +510,23 @@ async def get_file_by_name(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    
+    # Check if SSL certificates exist
+    ssl_keyfile = "certificates/server.key"
+    ssl_certfile = "certificates/server.crt"
+    
+    if os.path.exists(ssl_keyfile) and os.path.exists(ssl_certfile):
+        safe_logger.info("Starting FastAPI server with HTTPS (self-signed certificate)")
+        safe_logger.warning("Browsers will show a security warning - this is normal for self-signed certificates")
+        uvicorn.run(
+            app, 
+            host="0.0.0.0", 
+            port=8034,
+            ssl_keyfile=ssl_keyfile,
+            ssl_certfile=ssl_certfile
+        )
+    else:
+        safe_logger.info("Starting FastAPI server with HTTP (no SSL certificates found)")
+        safe_logger.info("Run './generate_ssl_cert.sh' to enable HTTPS")
+        uvicorn.run(app, host="0.0.0.0", port=8034)

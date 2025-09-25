@@ -86,9 +86,9 @@ export function ApiConnectionTest() {
             <div className="text-sm text-red-800">
               <strong>Error:</strong> {error}
             </div>
-            <div className="text-xs text-red-600 mt-1">
-              Make sure the API server is running on http://localhost:8000
-            </div>
+        <div className="text-xs text-red-600 mt-1">
+          Make sure the API server is running on {import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8034' : 'https://194.163.134.129:8034/')}
+        </div>
           </div>
         )}
 

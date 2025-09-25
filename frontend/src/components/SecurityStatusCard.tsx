@@ -135,7 +135,8 @@ export function SecurityStatusCard() {
         <div className="text-xs text-muted-foreground space-y-1">
           <div>API Key: {status.apiKeyValid ? 'Valid' : 'Invalid'}</div>
           <div>Rate Limit: {status.rateLimitStatus}</div>
-          <div>Base URL: {import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'}</div>
+          <div>Base URL: {import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:8034' : 'https://194.163.134.129:8034/')}</div>
+          <div>Environment: {import.meta.env.VITE_ENVIRONMENT || (import.meta.env.DEV ? 'development' : 'production')}</div>
         </div>
 
         {!status.apiKeyValid && (

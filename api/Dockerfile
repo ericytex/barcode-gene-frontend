@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    API_PORT=8000
+    API_PORT=8034
 
 # Install system dependencies including fonts
 RUN apt-get update && apt-get install -y \
@@ -41,12 +41,12 @@ RUN useradd --create-home --shell /bin/bash app && \
     chown -R app:app /app
 USER app
 
-# Expose port 8000
-EXPOSE 8000
+# Expose port 8034
+EXPOSE 8034
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/health || exit 1
+    CMD curl -k -f https://localhost:8034/healthz || exit 1
 
-# Run the application
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1"]
+# Run the application with SSL support if certificates exist
+CMD ["sh", "-c", "if [ -f certificates/server.key ] && [ -f certificates/server.crt ]; then echo '🔐 Starting with HTTPS'; uvicorn app:app --host 0.0.0.0 --port ${API_PORT:-8034} --workers 1 --ssl-keyfile certificates/server.key --ssl-certfile certificates/server.crt; else echo '🔓 Starting with HTTP'; uvicorn app:app --host 0.0.0.0 --port ${API_PORT:-8034} --workers 1; fi"]

@@ -1,10 +1,68 @@
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, Key, Shield, Palette, Database } from "lucide-react";
+import { Settings, Key, Shield, Palette, Database, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState, useEffect } from "react";
+import { apiService } from "@/lib/api";
 
 export default function SettingsPage() {
+  const [environmentConfig, setEnvironmentConfig] = useState(apiService.getEnvironmentConfig());
+  const [connectionStatus, setConnectionStatus] = useState<'connected' | 'disconnected' | 'testing'>('disconnected');
+  const [isTestingConnection, setIsTestingConnection] = useState(false);
+
+  useEffect(() => {
+    // Update environment config when component mounts
+    setEnvironmentConfig(apiService.getEnvironmentConfig());
+  }, []);
+
+  const handleEnvironmentChange = (newEnvironment: string) => {
+    if (newEnvironment === 'development') {
+      apiService.switchToDevelopment();
+    } else if (newEnvironment === 'production') {
+      apiService.switchToProduction();
+    }
+    setEnvironmentConfig(apiService.getEnvironmentConfig());
+    setConnectionStatus('disconnected'); // Reset connection status when switching
+  };
+
+  const testConnection = async () => {
+    setIsTestingConnection(true);
+    setConnectionStatus('testing');
+    
+    try {
+      await apiService.healthCheck();
+      setConnectionStatus('connected');
+    } catch (error) {
+      setConnectionStatus('disconnected');
+      console.error('Connection test failed:', error);
+    } finally {
+      setIsTestingConnection(false);
+    }
+  };
+
+  const getConnectionBadge = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return <Badge variant="default" className="bg-green-500">Connected</Badge>;
+      case 'testing':
+        return <Badge variant="secondary">Testing...</Badge>;
+      default:
+        return <Badge variant="destructive">Disconnected</Badge>;
+    }
+  };
+
+  const getConnectionIcon = () => {
+    switch (connectionStatus) {
+      case 'connected':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'testing':
+        return <RefreshCw className="w-4 h-4 animate-spin text-blue-500" />;
+      default:
+        return <AlertTriangle className="w-4 h-4 text-red-500" />;
+    }
+  };
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -28,17 +86,41 @@ export default function SettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Environment Selection */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Environment</label>
+              <Select value={environmentConfig.environment} onValueChange={handleEnvironmentChange}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select environment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="development">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      Development (localhost:8034)
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="production">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      Production (194.163.134.129:8034)
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">API Base URL</label>
                 <div className="flex items-center gap-2">
                   <input 
                     type="text" 
-                    value="http://localhost:8000" 
+                    value={environmentConfig.baseUrl} 
                     className="flex-1 px-3 py-2 border rounded-md bg-background"
                     readOnly
                   />
-                  <Badge variant="secondary">Connected</Badge>
+                  {getConnectionBadge()}
                 </div>
               </div>
               <div className="space-y-2">
@@ -50,13 +132,41 @@ export default function SettingsPage() {
                     className="flex-1 px-3 py-2 border rounded-md bg-background"
                     readOnly
                   />
-                  <Badge variant="secondary">Valid</Badge>
+                  <Badge variant={environmentConfig.isProduction ? "default" : "secondary"}>
+                    {environmentConfig.isProduction ? "Production" : "Development"}
+                  </Badge>
                 </div>
               </div>
             </div>
+
+            {/* Connection Status */}
+            <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
+              {getConnectionIcon()}
+              <span className="text-sm">
+                {connectionStatus === 'connected' ? 'API is reachable' : 
+                 connectionStatus === 'testing' ? 'Testing connection...' : 
+                 'API connection not tested'}
+              </span>
+            </div>
+
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                Test Connection
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={testConnection}
+                disabled={isTestingConnection}
+              >
+                {isTestingConnection ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Testing...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Test Connection
+                  </>
+                )}
               </Button>
               <Button variant="outline" size="sm">
                 Reset API Key
@@ -200,3 +310,4 @@ export default function SettingsPage() {
     </DashboardLayout>
   );
 }
+
